@@ -89,6 +89,11 @@ namespace arrow_vendored
 namespace date
 {
 
+// 10957 = julian days of '2000-01-01' - julian days of '1970-01-01'
+// This is used to align the number of days based on the PG epoch to
+// the number based on the unix epoch, or vice versa.
+#define DIFFDAYS_BETWEEN_UNIXEPOCH_AND_PGEPOCH 10957
+
 //---------------+
 // Configuration |
 //---------------+
@@ -2985,7 +2990,7 @@ year_month_day::to_days() const NOEXCEPT
     auto const yoe = static_cast<unsigned>(y - era * 400);       // [0, 399]
     auto const doy = (153*(m > 2 ? m-3 : m+9) + 2)/5 + d-1;      // [0, 365]
     auto const doe = yoe * 365 + yoe/4 - yoe/100 + doy;          // [0, 146096]
-    return days{era * 146097 + static_cast<int>(doe) - 719468};
+    return days{era * 146097 + static_cast<int>(doe) - 719468 - DIFFDAYS_BETWEEN_UNIXEPOCH_AND_PGEPOCH};
 }
 
 CONSTCD14
@@ -3092,7 +3097,7 @@ year_month_day::from_days(days dp) NOEXCEPT
              "This algorithm has not been ported to a 16 bit unsigned integer");
     static_assert(std::numeric_limits<int>::digits >= 20,
              "This algorithm has not been ported to a 16 bit signed integer");
-    auto const z = dp.count() + 719468;
+    auto const z = dp.count() + 719468 + DIFFDAYS_BETWEEN_UNIXEPOCH_AND_PGEPOCH;
     auto const era = (z >= 0 ? z : z - 146096) / 146097;
     auto const doe = static_cast<unsigned>(z - era * 146097);          // [0, 146096]
     auto const yoe = (doe - doe/1460 + doe/36524 - doe/146096) / 365;  // [0, 399]
