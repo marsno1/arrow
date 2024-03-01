@@ -690,6 +690,8 @@ class ConcatenateImpl {
             auto sliced_buffer,
             SliceBufferSafe(buffer, array_data->offset, array_data->length));
         buffers.push_back(std::move(sliced_buffer));
+      } else {
+        buffers.push_back(std::make_shared<Buffer>(nullptr, 0));
       }
     }
     return buffers;
@@ -732,6 +734,8 @@ class ConcatenateImpl {
                               SliceBufferSafe(buffer, array_data->offset * byte_width,
                                               array_data->length * byte_width));
         buffers.push_back(std::move(sliced_buffer));
+      } else {
+        buffers.push_back(std::make_shared<Buffer>(nullptr, 0));
       }
     }
     return buffers;
